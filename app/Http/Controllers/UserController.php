@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
-
 use Illuminate\Validation\Rules\Password;
-
-use Illuminate\Support\Facades\Validator;
+use Validator;
+use Hash;
+use App\Models\User;
+use Auth;
 
 
 
@@ -20,7 +20,7 @@ class UserController extends Controller
 
         //validate 
         $validator=Validator::make($inputs,[
-            'first_name' => 'required',
+            'first_name' => 'required|string|max:255',
             'last_name' => 'required',
             'email' => 'required|email|unique:users,email',
             'password' => 'required'
@@ -30,21 +30,77 @@ class UserController extends Controller
         // if not validated return response with error
         if($validator->fails()) 
         {
-            return response()->error($validator->error()->messages(),422);
+            return response()->json([
+                'code' => 422,
+                'data' => [],
+                'errors' => $validator->errors()->messages() //validation error messages will go here
+            ]);
         }
 
-        return response()->json([
-            'code' => 422,
-            'data' => [],
-            'errors' => [] //validation error messages will go here
+        $user = User::create([
+            'first_name' => $inputs['first_name'],
+            'last_name' => $inputs['last_name'],
+            'email' => $inputs['email'],
+            'password' => Hash::make($inputs['password']),
         ]);
+
+        $accessToken = $user->createToken('authToken')->accessToken;
 
         // if validated enter details to database
 
         return response()->json([
             'code' => 200,
-            'data' => 'User registered successfully',
+            'data' => [$user, 'access_token' => $accessToken],
             'errors' => []
         ]);
+    }
+
+    public function login()
+    {
+        $inputs = request()->all();
+
+        $validator=Validator::make($inputs,[
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+         // if not validated return response with error
+        if($validator->fails()) 
+        {
+            return response()->json([
+                'code' => 422,
+                'data' => [],
+                'errors' => $validator->errors()->messages() //validation error messages will go here
+            ]);
+        }
+
+        $user = User::where('email', $inputs['email'])->first();
+
+        if(!$user) 
+        {
+            return response()->json([
+                'code' => 400,
+                'data' =>[],
+                'errors' => 'Invalid Credentials'
+            ]);
+        }
+
+        if(Hash::check($inputs['password'], $user->password)) {
+            $token = $user->createToken('authToken')->accessToken;
+
+            return response()->json([
+                'code'=> 200,
+                'data' => ['user' => $user, 'access_token' => $token],
+                'errors'=> []
+            ]);
+        } else {
+            return response()->json([
+                'code' => 400,
+                'data' =>[],
+                'errors' => 'Invalid Credentials'
+            ]);
+        }
+
+
     }
 }

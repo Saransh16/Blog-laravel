@@ -15,4 +15,6 @@ use App\Http\Controllers\PostController;
 |
 */
 
-Route::get('/', [PostController::class, 'index']);
+Route::get('/login', function() {
+    return view('welcome');
+})->name('login');

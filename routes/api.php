@@ -17,4 +17,6 @@ Route::middleware(['auth:api'])->group(function () {
     
     Route::post('/create/post', 'PostController@create');
 
+    Route::put('/update/post', 'PostController@update');
+
 });

@@ -54,7 +54,10 @@ class PostController extends Controller
     
     public function userPost()
     {
-        
+        $posts = Post::where('user_id', '=', auth()->user()->id)->get();
+        // dd($posts);
+
+        return $posts;
     }
 
     public function update($id)

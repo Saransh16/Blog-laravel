@@ -113,4 +113,26 @@ class PostController extends Controller
             'errors' => []
         ], 200);
     }
+
+    public function delete(User $user, Post $post)
+    {
+        if($user->id !== $post->user_id) {
+            return response()->json([
+                'code' => 400,
+                'data' => [],
+                'errors' => 'Post not Found'
+            ], 400);
+        }
+        else {
+            $post->delete();
+            return response()->json([
+                'code' => 200,
+                'data' => ['message'=>'post deleted successfully!'],
+                'errors' => []
+            ], 200);
+        }
+
+
+
+    }
 }

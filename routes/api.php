@@ -19,8 +19,10 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::get('/posts', 'PostController@index');
 
-    Route::get('/posts/user', 'PostController@userPost');
+    Route::get('/users/{user}', 'PostController@userPost');
 
-    Route::put('/update/post', 'PostController@update');
+    Route::put('/update/users/{user}/posts/{post}', 'PostController@update');
+
+    Route::get('/users/{user}/posts/{post}', 'PostController@show');
 
 });

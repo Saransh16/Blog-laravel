@@ -60,35 +60,57 @@ class PostController extends Controller
         return $posts;
     }
 
-    public function update($id)
+    public function update(User $user, Post $post)
     {   
-        $post = Post::where('user_id', auth()->user()->id)
-                    //where condition for the post id
-                    ->first();
-
-        dd($post);                      
-        if(auth()->user()->id == $post->id)
-        {
+        if(auth()->user()->id !== $post->user_id) {
+            return error;
+        }
+        else {
             $inputs = request()->all();
 
             $validate=Validator::make($inputs,[
                 'title' => 'required|string|max:255',
                 'content' => 'required',
                 'is_published' => 'required',
-                // 'user_id' => 'required' //not req
             ]);
-
-            // there is no use of validator
-
-            // if($validate->fails())
-            // {
-            //     return response()->json([
-            //         'code' => 422,
-            //         'data' => [],
-            //         'errors' => $validate->errors()->messages()
-            //     ]);
-            // }
+            // dd($inputs);
+            // $post = Post::create([
+            //     'title' => $inputs['title'],
+            //     'content' => $inputs['content'],
+            //     'is_published' => $inputs['is_published'],
+            //     'user_id' => auth()->user()->id
+            // ]);
+    
+            $post->update($inputs);
+    
+            return response()->json([
+                'code' => 200,
+                'data' => [$post],
+                'errors' => []
+            ]);
         }
 
+
+    }
+
+
+    public function show(User $user, Post $post)
+    {
+        if($user->id !== $post->user_id) {
+            return response()->json([
+                'code' => 400,
+                'data' => [],
+                'errors' => 'Post not Found'
+            ], 400);
+        }
+
+        // $posts = Post::where('id', 1)->get();
+
+        // dd($post);
+        return response()->json([
+            'code' => 200,
+            'data' => $post,
+            'errors' => []
+        ], 200);
     }
 }

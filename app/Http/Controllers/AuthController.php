@@ -10,7 +10,7 @@ use Auth;
 
 
 
-class UserController extends Controller
+class AuthController extends Controller
 {
     public function register()
     {

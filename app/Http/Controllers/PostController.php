@@ -17,7 +17,7 @@ class PostController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required',
             'is_published' => 'required',
-            'user_id' => 'required'
+            // 'user_id' => 'required'   //remove this
         ]);
 
         if($validate->fails())
@@ -45,9 +45,23 @@ class PostController extends Controller
         ]);
     }
 
-    public function update()
+    public function index()
+    {
+        $posts = Post::all();
+
+        return $posts;
+    } 
+    
+    public function userPost()
+    {
+        
+    }
+
+    public function update($id)
     {   
-        $post = Post::where('user_id', auth()->user()->id)->first();
+        $post = Post::where('user_id', auth()->user()->id)
+                    //where condition for the post id
+                    ->first();
 
         dd($post);                      
         if(auth()->user()->id == $post->id)
@@ -58,17 +72,19 @@ class PostController extends Controller
                 'title' => 'required|string|max:255',
                 'content' => 'required',
                 'is_published' => 'required',
-                'user_id' => 'required'
+                // 'user_id' => 'required' //not req
             ]);
 
-            if($validate->fails())
-            {
-                return response()->json([
-                    'code' => 422,
-                    'data' => [],
-                    'errors' => $validate->errors()->messages()
-                ]);
-            }
+            // there is no use of validator
+
+            // if($validate->fails())
+            // {
+            //     return response()->json([
+            //         'code' => 422,
+            //         'data' => [],
+            //         'errors' => $validate->errors()->messages()
+            //     ]);
+            // }
         }
 
     }

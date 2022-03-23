@@ -11,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 class Welcome extends Mailable
 {
     use Queueable, SerializesModels;
-
+    public $user;
     /**
      * Create a new message instance.
      *

@@ -7,6 +7,8 @@ use Validator;
 use Hash;
 use App\Models\User;
 use Auth;
+use App\Mail\Welcome;
+use Mail;
 
 
 
@@ -15,8 +17,6 @@ class AuthController extends Controller
     public function register()
     {
         $inputs = request()->all();
-
-        // dd($inputs);
 
         //validate 
         $validator=Validator::make($inputs,[
@@ -44,15 +44,22 @@ class AuthController extends Controller
             'password' => Hash::make($inputs['password']),
         ]);
 
+        Mail::to($user->email)->send(new Welcome($user));
+
         $accessToken = $user->createToken('authToken')->accessToken;
 
         // if validated enter details to database
+
+        
 
         return response()->json([
             'code' => 200,
             'data' => [$user, 'access_token' => $accessToken],
             'errors' => []
         ]);
+
+      
+        
     }
 
     public function login()

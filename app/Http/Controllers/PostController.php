@@ -73,14 +73,6 @@ class PostController extends Controller
                 'content' => 'required',
                 'is_published' => 'required',
             ]);
-            // dd($inputs);
-            // $post = Post::create([
-            //     'title' => $inputs['title'],
-            //     'content' => $inputs['content'],
-            //     'is_published' => $inputs['is_published'],
-            //     'user_id' => auth()->user()->id
-            // ]);
-    
             $post->update($inputs);
     
             return response()->json([
@@ -89,7 +81,6 @@ class PostController extends Controller
                 'errors' => []
             ]);
         }
-
 
     }
 
@@ -132,7 +123,42 @@ class PostController extends Controller
             ], 200);
         }
 
+    }
 
 
+    public function publish($user_id, $post_id)
+    {
+        $post = Post::where('id', $post_id)->first();
+
+        // dd($post);
+        // dump(auth()->user()->id);
+        // dd($post->user_id);
+
+        if(auth()->user()->id != $post->user_id) {
+            return response()->json([
+                'code' => 400,
+                'data' =>[],
+                'errors' => 'post not found'
+            ]);
+        }
+
+            $inputs = request()->all();
+
+            // dd($inputs);
+
+            $validate=Validator::make($inputs,[
+                'is_published' => 'required|boolean',
+            ]);
+
+    
+            
+            $post->update($inputs);
+    
+            return response()->json([
+                'code' => 200,
+                'data' => [$post],
+                'errors' => []
+            ]);
+        
     }
 }

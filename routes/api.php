@@ -1,32 +1,33 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
-
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
 
+Route::post('/register', [AuthController::class, 'register']);
 
-Route::post('/register', 'AuthController@register');
-
-Route::post('/login', 'AuthController@login');
+Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware(['auth:api'])->group(function () {
-    
-    Route::post('/create/post', 'PostController@create');
+    Route::post('/create/post', [PostController::class, 'create']);
 
-    Route::get('/posts', 'PostController@index');
+    Route::get('/posts', [PostController::class, 'posts']);
 
-    Route::get('/users/{user}/posts', 'PostController@userPost');
+    Route::get('/users/{user}/posts', [PostController::class, 'userPost']);
 
-    Route::put('/users/{user}/posts/{post}', 'PostController@update');
+    Route::put('/posts/{id}', [PostController::class, 'update']);
 
-    Route::get('/users/{user}/posts/{post}', 'PostController@show');
+    Route::get('/users/{user}/posts/{post}', [PostController::class ,'show']);
 
-    Route::delete('/users/{user}/posts/{post}', 'PostController@delete');
+    Route::delete('/users/{user}/posts/{post}', [PostController::class, 'delete']);
 
-    Route::put('/users/{user}/posts/{posts}/published', 'PostController@publish');
-
+    Route::put(
+        '/users/{user}/posts/{posts}/published',
+        'PostController@publish'
+    );
 });

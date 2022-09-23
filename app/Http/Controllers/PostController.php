@@ -60,27 +60,56 @@ class PostController extends Controller
         return $posts;
     }
 
-    public function update(User $user, Post $post)
+    public function update($id)
     {   
-        if(auth()->user()->id !== $post->user_id) {
-            return error;
-        }
-        else {
-            $inputs = request()->all();
-
-            $validate=Validator::make($inputs,[
-                'title' => 'required|string|max:255',
-                'content' => 'required',
-                'is_published' => 'required',
-            ]);
-            $post->update($inputs);
-    
+        $post = Post::where('id', $id)->first();
+        // dd($post);
+        if(!$post) {
             return response()->json([
-                'code' => 200,
-                'data' => [$post],
-                'errors' => []
+                'code' => 400,
+                'data' => [],
+                'errors' => 'Post not found'
             ]);
         }
+
+        if(auth()->user()->id !== $post->user_id) {
+            return response()->json([
+                'code' => 401,
+                'data' => [],
+                'errors' => 'Not authorized'
+            ]);
+        }
+        
+        $inputs = request()->all();
+        // dd($inputs);
+
+        $validate=Validator::make($inputs,[
+            'title' => 'required|string|max:255',
+            'content' => 'required',
+            'is_published' => 'required',
+        ]);
+
+        if($validate->fails())
+        {
+            return response()->json([
+                'code' => 422,
+                'data' => [],
+                'errors' => $validate->errors()->messages()
+            ]);
+        }
+
+        $post->update([
+            'title' => $inputs['title'],
+            'content' => $inputs['content'],
+            'is_published' => $inputs['is_published']
+        ]);
+
+        return response()->json([
+            'code' => 200,
+            'data' => $post,
+            'errors' => []
+        ]);
+    
 
     }
 
@@ -132,7 +161,7 @@ class PostController extends Controller
 
         // dd($post);
         // dump(auth()->user()->id);
-        // dd($post->user_id);
+        dd($post->user_id);
 
         if(auth()->user()->id != $post->user_id) {
             return response()->json([
@@ -142,23 +171,25 @@ class PostController extends Controller
             ]);
         }
 
-            $inputs = request()->all();
+        $inputs = request()->all();
 
-            // dd($inputs);
+            dd($inputs);
 
-            $validate=Validator::make($inputs,[
-                'is_published' => 'required|boolean',
-            ]);
+        $validate=Validator::make($inputs,[
+            'is_published' => 'required|boolean',
+        ]);
 
-    
+        
+        dd($post);
             
-            $post->update($inputs);
-    
-            return response()->json([
-                'code' => 200,
-                'data' => [$post],
-                'errors' => []
-            ]);
+        $post->update($inputs);
+        $post->save();
+
+        return response()->json([
+            'code' => 200,
+            'data' => [$post],
+            'errors' => []
+        ]);
         
     }
 }

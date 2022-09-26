@@ -72,6 +72,8 @@ class PostController extends Controller
             ]);
         }
 
+        $this->authorize('update', $post);
+
         if(auth()->user()->id !== $post->user_id) {
             return response()->json([
                 'code' => 401,

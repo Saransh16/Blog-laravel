@@ -27,4 +27,9 @@ class PostPolicy
         //         ? Response::allow()
         //         : Response::deny('You do not own this post.');
     }
+
+    public function publish(User $user, Post $post)
+    {
+        return $user->id === $post->user_id;
+    }
 }

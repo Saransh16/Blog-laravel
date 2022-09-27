@@ -7,6 +7,8 @@ use Auth;
 use App\Models\Post;
 use App\Models\User;
 
+use Illuminate\Support\Facades\DB;
+
 class PostController extends Controller
 {
     public function create()
@@ -45,7 +47,7 @@ class PostController extends Controller
     
     public function userPost()
     {
-        $posts = Post::where('user_id', '=', auth()->user()->id)->get();
+        $posts = Post::where('user_id', '=', auth()->user()->id)->paginate(2);
 
         return $posts;
     }
@@ -131,10 +133,7 @@ class PostController extends Controller
     {
         $post = Post::where('id', $post_id)->first();
 
-        if(auth()->user()->id != $post->user_id) {
-
-            return response()->error('post not found', 400);
-        }
+        $this->authorize('publish', $post);
 
         $inputs = request()->all();
 
@@ -142,11 +141,16 @@ class PostController extends Controller
             'is_published' => 'required|boolean',
         ]);
 
-        
-        dd($post);
+        if($validate->fails())
+        {
+            return response()->error($validate->errors()->messages());
+        }
             
-        $post->update($inputs);
-        $post->save();
+        // $post->update($inputs);
+        $post->update([
+            'is_published' => $inputs['is_published']
+        ]);
+        // $post->save();
 
         return response()->success($post);
         

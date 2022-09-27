@@ -17,16 +17,12 @@ class PostController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required',
             'is_published' => 'required',
-            // 'user_id' => 'required'   //remove this
         ]);
 
         if($validate->fails())
         {
-            return response()->json([
-                'code' => 422,
-                'data' => [],
-                'errors' => $validate->errors()->messages()
-            ]);
+  
+            return response()->error($validate->errors()->messages());
         }
 
         // dd(auth()->user());
@@ -37,12 +33,7 @@ class PostController extends Controller
             'is_published' => $inputs['is_published'],
             'user_id' => auth()->user()->id
         ]);
-
-        return response()->json([
-            'code' => 200,
-            'data' => [$post],
-            'errors' => []
-        ]);
+        return response()->success($post);
     }
 
     public function index()
@@ -55,35 +46,14 @@ class PostController extends Controller
     public function userPost()
     {
         $posts = Post::where('user_id', '=', auth()->user()->id)->get();
-        // dd($posts);
 
         return $posts;
     }
 
     public function update($id)
     {   
-        $post = Post::where('id', $id)->first();
-        // dd($post);
-        if(!$post) {
-            return response()->json([
-                'code' => 400,
-                'data' => [],
-                'errors' => 'Post not found'
-            ]);
-        }
 
-        $this->authorize('update', $post);
-
-        if(auth()->user()->id !== $post->user_id) {
-            return response()->json([
-                'code' => 401,
-                'data' => [],
-                'errors' => 'Not authorized'
-            ]);
-        }
-        
         $inputs = request()->all();
-        // dd($inputs);
 
         $validate=Validator::make($inputs,[
             'title' => 'required|string|max:255',
@@ -93,24 +63,42 @@ class PostController extends Controller
 
         if($validate->fails())
         {
-            return response()->json([
-                'code' => 422,
-                'data' => [],
-                'errors' => $validate->errors()->messages()
-            ]);
+            return response()->error($validate->errors()->messages());
         }
 
+
+        $post = Post::where('id', $id)->first();
+        
+        if(!$post) {
+            return response()->error('post not found', 400);
+        }
+
+        $this->authorize('update', $post);
+
+        if(auth()->user()->id !== $post->user_id) {
+            return response()->error('not authorized', 401);
+        }
+        
+        $inputs = request()->all();
+
+        $validate=Validator::make($inputs,[
+            'title' => 'required|string|max:255',
+            'content' => 'required',
+            'is_published' => 'required',
+        ]);
+
+        if($validate->fails())
+        {
+            return response()->error($validate->errors()->messages());
+        }
+        
         $post->update([
             'title' => $inputs['title'],
             'content' => $inputs['content'],
             'is_published' => $inputs['is_published']
         ]);
-
-        return response()->json([
-            'code' => 200,
-            'data' => $post,
-            'errors' => []
-        ]);
+        
+        return response()->success($post);
     
 
     }
@@ -119,39 +107,21 @@ class PostController extends Controller
     public function show(User $user, Post $post)
     {
         if($user->id !== $post->user_id) {
-            return response()->json([
-                'code' => 400,
-                'data' => [],
-                'errors' => 'Post not Found'
-            ], 400);
+            return response()->error('post not found', 400);
         }
 
-        // $posts = Post::where('id', 1)->get();
-
-        // dd($post);
-        return response()->json([
-            'code' => 200,
-            'data' => $post,
-            'errors' => []
-        ], 200);
+        return response()->success($post);
     }
 
     public function delete(User $user, Post $post)
     {
         if($user->id !== $post->user_id) {
-            return response()->json([
-                'code' => 400,
-                'data' => [],
-                'errors' => 'Post not Found'
-            ], 400);
+
+            return response()->error('post not found', 400);
         }
         else {
             $post->delete();
-            return response()->json([
-                'code' => 200,
-                'data' => ['message'=>'post deleted successfully!'],
-                'errors' => []
-            ], 200);
+            return response()->success($message = 'post deleted Successfully');  // Add message here. 
         }
 
     }
@@ -161,21 +131,12 @@ class PostController extends Controller
     {
         $post = Post::where('id', $post_id)->first();
 
-        // dd($post);
-        // dump(auth()->user()->id);
-        dd($post->user_id);
-
         if(auth()->user()->id != $post->user_id) {
-            return response()->json([
-                'code' => 400,
-                'data' =>[],
-                'errors' => 'post not found'
-            ]);
+
+            return response()->error('post not found', 400);
         }
 
         $inputs = request()->all();
-
-            dd($inputs);
 
         $validate=Validator::make($inputs,[
             'is_published' => 'required|boolean',
@@ -187,11 +148,7 @@ class PostController extends Controller
         $post->update($inputs);
         $post->save();
 
-        return response()->json([
-            'code' => 200,
-            'data' => [$post],
-            'errors' => []
-        ]);
+        return response()->success($post);
         
     }
 }

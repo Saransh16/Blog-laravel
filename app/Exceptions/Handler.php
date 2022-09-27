@@ -36,20 +36,7 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-
-        // $this->renderable(function (AuthorizationException $e, $request) {
-        //     dd("here");
-        //     if ($request->is('api/*')) {
-        //         return response()->json([
-        //             'message' => 'Record not found.'
-        //         ], 404);
-        //     }
-        // });
-
-        $this->reportable(function (Throwable $e) {
-            dd($e);
-        });
-        
+        //
     }
 
     public function render($request, Throwable $e)

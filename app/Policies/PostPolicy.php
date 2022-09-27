@@ -22,7 +22,7 @@ class PostPolicy
 
     public function update(User $user, Post $post)
     {
-        return $user->first_name === $post->user_id;
+        return $user->id === $post->user_id;
         // return $user->id === $post->user_id
         //         ? Response::allow()
         //         : Response::deny('You do not own this post.');

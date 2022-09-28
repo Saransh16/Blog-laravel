@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('likes', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->morphs('likeable');
+            $table->integer('user_id');
+            $table->integer('post_id');
             $table->timestamps();
         });
     }

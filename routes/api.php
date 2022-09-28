@@ -14,6 +14,9 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware(['auth:api'])->group(function () {
+
+    Route::post('posts/{id}/act', [PostController::class, 'like']);
+
     Route::post('/create/post', [PostController::class, 'create']);
 
     Route::get('/posts', [PostController::class, 'userPost']);
@@ -24,8 +27,8 @@ Route::middleware(['auth:api'])->group(function () {
 
     Route::delete('/users/{user}/posts/{post}', [PostController::class, 'delete']);
 
-    Route::put(
-        '/users/{user}/posts/{posts}/published',
-        'PostController@publish'
-    );
+    Route::put('/users/{user}/posts/{post}/published',[PostController::class, 'publish']);
+
+    Route::post('/users/{user}/posts/{post}/act', [PostController::class, 'like']);
+
 });

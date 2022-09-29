@@ -7,6 +7,9 @@ use Auth;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\Like;
+use App\Mail\Liked;
+
+use Mail;
 
 use Illuminate\Support\Facades\DB;
 
@@ -149,24 +152,36 @@ class PostController extends Controller
             return response()->error('post not found', 400);
         }
 
-        //check if the user has not already liked the post
+        // // check if the user has not already liked the post
         $like = Like::where('user_id' , '=', auth()->user()->id)
                     ->where('post_id', '=', $post->id)
                     ->first();
         
-        return response()->error('Post already liked', 400);
-        
-        if(!$like){
-            $like = Like::create([
-                
-                'post_id' => $post->id,  
-                'user_id' => auth()->user()->id,
-                
-            ]);
-            return response()->success(['message' => 'Post liked successfuly']);
-        } 
-       
+        // if($like){
+        //     return response()->error('Post already liked', 400);            
+        // } 
 
+        // $like = Like::create([
+                
+        //     'post_id' => $post->id,  
+        //     'user_id' => auth()->user()->id,
+            
+        // ]);
+
+        //fetch user object from the post user id and then use user email
+
+        $user = User::where('id', '=', $post->user_id)
+                            ->first();
+
+        // dd($user->email);
+        // dd(User::where('id', '=', $post->user_id)->toSql());
+        
+        $like_count = Like::where('post_id', '=', $post->id)->count();
+        
+        Mail::to($user->email)->send(new Liked($like, $like_count));
+        return response()->success(['message' => 'Post liked successfuly']);
+       
+        
         
     }
 }

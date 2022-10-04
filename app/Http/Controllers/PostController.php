@@ -38,14 +38,14 @@ class PostController extends Controller
         return response()->success($post);
     }
 
+    // public function index()
+    // {
+    //     $posts = Post::all();
+
+    //     return $posts;
+    // }
+
     public function index()
-    {
-        $posts = Post::all();
-
-        return $posts;
-    }
-
-    public function userPost()
     {
         $posts = Post::where('user_id', '=', auth()->user()->id)->paginate(5);
 
@@ -115,7 +115,7 @@ class PostController extends Controller
         } else {
             $post->delete();
             return response()->success($message = 'post deleted Successfully'); // Add message here.
-        }
+        // }
     }
 
     public function publish($user_id, $post_id)
@@ -157,16 +157,16 @@ class PostController extends Controller
                     ->where('post_id', '=', $post->id)
                     ->first();
         
-        // if($like){
-        //     return response()->error('Post already liked', 400);            
-        // } 
+        if($like){
+            return response()->error('Post already liked', 400);            
+        } 
 
-        // $like = Like::create([
+        $like = Like::create([
                 
-        //     'post_id' => $post->id,  
-        //     'user_id' => auth()->user()->id,
+            'post_id' => $post->id,  
+            'user_id' => auth()->user()->id,
             
-        // ]);
+        ]);
 
         //fetch user object from the post user id and then use user email
 
